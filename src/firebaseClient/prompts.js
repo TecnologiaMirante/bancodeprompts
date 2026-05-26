@@ -56,6 +56,7 @@ export async function createPrompt(data, userProfile) {
     createdByName: userProfile?.display_name || "",
     viewCount: 0,
     copyCount: 0,
+    likesCount: 0,
   });
 }
 

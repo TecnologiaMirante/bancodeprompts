@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Heart, Shield, User } from "lucide-react";
+import { Home, Heart, Clock, Shield, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function MobileNav() {
@@ -8,9 +8,10 @@ export default function MobileNav() {
   const location = useLocation();
 
   const items = [
-    { to: "/", icon: Home, label: "Início" },
-    { to: "/favorites", icon: Heart, label: "Favoritos" },
-    { to: "/profile", icon: User, label: "Perfil" },
+    { to: "/",         icon: Home,  label: "Início"    },
+    { to: "/favorites",icon: Heart, label: "Favoritos" },
+    { to: "/history",  icon: Clock, label: "Histórico" },
+    { to: "/profile",  icon: User,  label: "Perfil"    },
     ...(isAdmin ? [{ to: "/admin", icon: Shield, label: "Admin" }] : []),
   ];
 

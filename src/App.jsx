@@ -13,6 +13,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import PromptDetailPage from "./pages/PromptDetailPage";
 import FavoritesPage from "./pages/FavoritesPage";
+import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 
@@ -95,6 +96,16 @@ function AppRoutes() {
           <PrivateRoute>
             <AppLayout>
               <FavoritesPage />
+            </AppLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <PrivateRoute>
+            <AppLayout>
+              <HistoryPage />
             </AppLayout>
           </PrivateRoute>
         }
