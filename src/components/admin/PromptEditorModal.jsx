@@ -1,6 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import { X, Save, Check, ChevronDown, Lock } from "lucide-react";
+import { X, Save, Check, ChevronDown, Lock, Sparkles } from "lucide-react";
+import { ConfirmModal } from "../ui/confirm-modal";
+import logoClaro from "../../assets/logo_claro.png";
+import logoEscuro from "../../assets/logo_escuro.png";
+import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { createPrompt, updatePrompt } from "../../firebaseClient/prompts";
 import { toast } from "sonner";
@@ -27,6 +31,7 @@ const EMPTY_FORM = {
   instructions: "",
   observations: "",
   is_featured: false,
+  is_mirante_ia: false,
 };
 
 /* ── CheckboxGroup — colapsável ──────────────────────────────── */
@@ -158,6 +163,7 @@ function LockedSectors({ sectorIds, sectors }) {
 /* ── Modal principal ─────────────────────────────────────────── */
 export default function PromptEditorModal({ prompt, categories, sectors, onSaved, onClose }) {
   const { userProfile, isAdmin, isSuperAdmin } = useAuth();
+  const { dark } = useTheme();
   const isEditing = !!prompt;
   const canEditSector = isAdmin || isSuperAdmin;
 
@@ -177,13 +183,31 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
       ? []
       : userSectorIds;
 
-  const [form, setForm] = useState({
+  const initialForm = useRef({
     ...EMPTY_FORM,
     ...(prompt || {}),
     sectorIds: initialSectorIds,
     categoryIds: toArray(prompt?.categoryIds || prompt?.categoryId || prompt?.category_id),
   });
-  const [saving, setSaving] = useState(false);
+
+  const [form, setForm] = useState({ ...initialForm.current });
+  const [saving, setSaving]               = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  const isDirty = useMemo(() => {
+    const ini = initialForm.current;
+    return Object.keys(EMPTY_FORM).some((key) => {
+      const a = form[key];
+      const b = ini[key];
+      if (Array.isArray(a)) return JSON.stringify(a) !== JSON.stringify(b);
+      return a !== b;
+    });
+  }, [form]);
+
+  const handleClose = () => {
+    if (isDirty) setShowCloseConfirm(true);
+    else onClose();
+  };
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -239,7 +263,7 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       <motion.div
@@ -254,7 +278,7 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
             {isEditing ? "Editar prompt" : "Novo prompt"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="cursor-pointer w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
@@ -350,24 +374,47 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
             />
           </Field>
 
-          {/* Destaque — apenas admins */}
+          {/* Destaque + Mirante IA — apenas admins */}
           {canEditSector && (
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <Checkbox
-                checked={form.is_featured}
-                onCheckedChange={(v) => set("is_featured", !!v)}
-              />
-              <span className="text-sm text-foreground">
-                Destacar este prompt (aparece na home)
-              </span>
-            </label>
+            <div className="space-y-3 pt-1">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox
+                  checked={form.is_featured}
+                  onCheckedChange={(v) => set("is_featured", !!v)}
+                />
+                <span className="text-sm text-foreground">
+                  Destacar este prompt (aparece na home)
+                </span>
+              </label>
+
+              {/* Selo Mirante IA */}
+              <label className="flex items-start gap-2.5 cursor-pointer group">
+                <Checkbox
+                  checked={form.is_mirante_ia}
+                  onCheckedChange={(v) => set("is_mirante_ia", !!v)}
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-foreground font-medium">Selo Mirante IA</span>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
+                      <img src={dark ? logoEscuro : logoClaro} alt="" className="h-3 w-auto object-contain" />
+                      <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 tracking-wide uppercase">Mirante IA</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Marca este prompt como produzido pela equipe da TV Mirante. Exibe um selo especial no card e na página de detalhe.
+                  </p>
+                </div>
+              </label>
+            </div>
           )}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border shrink-0">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="cursor-pointer h-9 px-4 text-sm text-muted-foreground hover:text-foreground border border-border rounded-xl transition-colors"
           >
             Cancelar
@@ -386,6 +433,18 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
           </button>
         </div>
       </motion.div>
+
+      {/* Confirmação de descarte */}
+      <ConfirmModal
+        open={showCloseConfirm}
+        title="Descartar alterações?"
+        description="Você tem alterações não salvas. Se fechar agora, elas serão perdidas."
+        confirmLabel="Descartar"
+        cancelLabel="Continuar editando"
+        variant="danger"
+        onConfirm={onClose}
+        onCancel={() => setShowCloseConfirm(false)}
+      />
 
       <style>{`
         .input-base {

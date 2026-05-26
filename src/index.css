@@ -168,6 +168,92 @@
   }
 }
 
+/* ─── Hero Blobs ─────────────────────────────────────────────── */
+.hero-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.hero-blob-1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(79,70,229,0.40) 0%, transparent 70%);
+  top: -180px; left: -120px;
+  animation: blob-drift-1 12s ease-in-out infinite alternate;
+}
+.hero-blob-2 {
+  width: 550px; height: 550px;
+  background: radial-gradient(circle, rgba(124,58,237,0.32) 0%, transparent 70%);
+  top: 20px; right: -80px;
+  animation: blob-drift-2 15s ease-in-out infinite alternate;
+}
+.hero-blob-3 {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
+  bottom: -60px; left: 30%;
+  animation: blob-drift-3 10s ease-in-out infinite alternate;
+}
+.hero-blob-4 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(139,92,246,0.20) 0%, transparent 70%);
+  top: 40%; left: -60px;
+  animation: blob-drift-2 18s ease-in-out infinite alternate-reverse;
+}
+.dark .hero-blob-1 { background: radial-gradient(circle, rgba(79,70,229,0.22) 0%, transparent 70%); }
+.dark .hero-blob-2 { background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%); }
+.dark .hero-blob-3 { background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%); }
+.dark .hero-blob-4 { background: radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 70%); }
+
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(79,70,229,0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.dark .dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@keyframes blob-drift-1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(60px, 40px) scale(1.1); }
+}
+@keyframes blob-drift-2 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-40px, 60px) scale(0.9); }
+}
+@keyframes blob-drift-3 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, -50px) scale(1.05); }
+}
+
+/* ─── Badge glow ─────────────────────────────────────────────── */
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%       { box-shadow: 0 0 14px 4px rgba(99,102,241,0.28); }
+}
+.badge-glow { animation: badge-glow 3s ease-in-out infinite; }
+
+/* ─── Shimmer text ───────────────────────────────────────────── */
+@keyframes shimmer-move {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #4f46e5 0%,
+    #a78bfa 30%,
+    #6366f1 55%,
+    #7c3aed 80%,
+    #4f46e5 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-move 4s linear infinite;
+}
+
 /* ─── Utility Classes ────────────────────────────────────────── */
 @layer utilities {
   .text-balance { text-wrap: balance; }

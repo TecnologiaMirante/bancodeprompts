@@ -1,12 +1,46 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Heart, Search, X } from "lucide-react";
+import { Heart, Search, X, Download } from "lucide-react";
 import { useFavorites } from "../hooks/useFavorites";
 import { getPrompts } from "../firebaseClient/prompts";
 import { getCategories } from "../firebaseClient/categories";
 import { getSectors } from "../firebaseClient/sectors";
 import PromptGrid from "../components/prompts/PromptGrid";
+import { toast } from "sonner";
+
+function exportFavoritesTxt(prompts, sectors, categories) {
+  if (!prompts.length) { toast.error("Nenhum favorito para exportar."); return; }
+  const lines = [
+    `BANCO DE PROMPTS — TV MIRANTE`,
+    `MEUS FAVORITOS`,
+    `${"=".repeat(50)}`,
+    `Exportado em: ${new Date().toLocaleString("pt-BR")}`,
+    `Total: ${prompts.length} prompt${prompts.length !== 1 ? "s" : ""}`,
+    ``,
+  ];
+  prompts.forEach((p, i) => {
+    const sectorIds   = p.sectorIds?.length ? p.sectorIds : p.sectorId ? [p.sectorId] : [];
+    const categoryIds = p.categoryIds?.length ? p.categoryIds : p.categoryId ? [p.categoryId] : [];
+    const sectorNames   = sectorIds.map((id) => sectors.find((s) => s.id === id)?.name).filter(Boolean).join(", ") || "—";
+    const categoryNames = categoryIds.map((id) => categories.find((c) => c.id === id)?.name).filter(Boolean).join(", ") || "—";
+    lines.push(`${i + 1}. ${p.title || "Sem título"}`);
+    lines.push(`   Setor: ${sectorNames}  |  Categoria: ${categoryNames}  |  IA: ${p.ai_model || "—"}`);
+    lines.push(`${"─".repeat(50)}`);
+    lines.push(p.content || "(conteúdo não disponível)");
+    lines.push(``);
+    lines.push(``);
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement("a"), {
+    href: url,
+    download: `favoritos-${new Date().toISOString().slice(0,10)}.txt`,
+  });
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("Favoritos exportados!");
+}
 
 function SkeletonCard() {
   return (
@@ -61,7 +95,7 @@ export default function FavoritesPage() {
         className="space-y-6"
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
@@ -73,6 +107,15 @@ export default function FavoritesPage() {
                 : `${favoritePrompts.length} prompt${favoritePrompts.length !== 1 ? "s" : ""} salvos`}
             </p>
           </div>
+          {!isLoading && favoritePrompts.length > 0 && (
+            <button
+              onClick={() => exportFavoritesTxt(filtered.length && filtered.length < favoritePrompts.length ? filtered : favoritePrompts, sectors, categories)}
+              className="cursor-pointer inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Exportar .txt
+            </button>
+          )}
         </div>
 
         {/* Search — only when there's content */}

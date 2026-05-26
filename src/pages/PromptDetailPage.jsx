@@ -18,6 +18,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { Sparkles } from "lucide-react";
+import logoClaro from "../assets/logo_claro.png";
+import logoEscuro from "../assets/logo_escuro.png";
 import {
   getPromptById,
   deletePrompt,
@@ -39,6 +43,7 @@ export default function PromptDetailPage() {
   const queryClient = useQueryClient();
   const { isFavorite, toggle } = useFavorites();
   const { isAdmin, isSuperAdmin, userProfile } = useAuth();
+  const { dark } = useTheme();
   const [copied, setCopied] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -187,6 +192,20 @@ export default function PromptDetailPage() {
                 />
                 {category.name}
               </span>
+            )}
+            {prompt.is_mirante_ia && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-300/70 dark:border-amber-600/40 shadow-sm"
+              >
+                <img src={dark ? logoEscuro : logoClaro} alt="TV Mirante" className="h-3.5 w-auto object-contain" />
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 tracking-widest uppercase">
+                  Mirante IA
+                </span>
+              </motion.div>
             )}
           </div>
 
