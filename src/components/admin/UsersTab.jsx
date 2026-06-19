@@ -196,28 +196,29 @@ export default function UsersTab({ users, setUsers, sectors, isSuperAdmin }) {
               <label className="text-xs font-medium text-muted-foreground">
                 Setores de acesso
               </label>
-              <div className="flex flex-wrap gap-2">
-                {sectors.map((s) => {
-                  const isSelected = sectorEdit.includes(s.id);
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => toggleSector(s.id)}
-                      className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                        isSelected
-                          ? "border-primary bg-primary/8 text-primary"
-                          : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
-                      }`}
-                    >
-                      {s.name}
-                    </button>
-                  );
-                })}
-              </div>
-              {sectorEdit.length > 0 && (
-                <p className="text-[10px] text-muted-foreground">
-                  Setores: {sectorEdit.map(getSectorName).join(", ")}
+              {sectors.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">
+                  Nenhum setor disponível.
                 </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {sectors.map((s) => {
+                    const isSelected = sectorEdit.includes(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => toggleSector(s.id)}
+                        className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/8 text-primary"
+                            : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
+                        }`}
+                      >
+                        {s.name}
+                      </button>
+                    );
+                  })}
+                </div>
               )}
             </div>
 

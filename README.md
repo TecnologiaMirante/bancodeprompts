@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="./src/assets/logo_mirante.png" alt="TV Mirante" height="48" />
-
 # Banco de Prompts · TV Mirante
 
-**Biblioteca corporativa de prompts de IA — organizada por setor e categoria, com gestão de acessos, favoritos, analytics e painel de administração completo.**
+**Biblioteca corporativa de prompts de IA — organizada por setor e categoria, com gestão de acessos, favoritos, histórico, likes, analytics e painel de administração completo.**
 
 [![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)](https://react.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-12-ffca28?style=flat-square&logo=firebase)](https://firebase.google.com)
@@ -19,7 +17,7 @@
 
 ## 🔎 Visão Geral
 
-O **Banco de Prompts** é uma plataforma interna da **TV Mirante** para centralizar, organizar e compartilhar prompts de IA entre as equipes. Cada colaborador acessa apenas os prompts do seu setor, pode favoritar os que usa com frequência, criar os seus próprios e acompanhar os mais populares da redação.
+O **Banco de Prompts** é uma plataforma interna da **TV Mirante** para centralizar, organizar e compartilhar prompts de IA entre as equipes. Cada colaborador acessa apenas os prompts do seu setor, pode favoritar os que usa com frequência, curtir, acompanhar o histórico de cópias e criar os seus próprios prompts.
 
 O painel de administração permite gerenciar prompts, usuários, setores, categorias e visualizar métricas de uso — tudo em um design moderno com dark mode, animações fluidas e responsividade total.
 
@@ -32,16 +30,18 @@ O painel de administração permite gerenciar prompts, usuários, setores, categ
 | | Funcionalidade | Descrição |
 |---|---|---|
 | 🔐 | **Login corporativo** | Google Sign-In restrito ao domínio `@mirante.com.br` |
-| 🗂️ | **Biblioteca de prompts** | Filtros por setor, categoria, modelo de IA e dificuldade; busca em tempo real; ordenação; contagem cross-filtered por filtro |
+| 🗂️ | **Biblioteca de prompts** | Filtros por setor, categoria, modelo de IA e dificuldade; busca em tempo real; ordenação; contagem cross-filtered |
 | ✍️ | **Criar prompts** | Qualquer colaborador logado pode publicar prompts na biblioteca |
-| ✏️ | **Editar e excluir os próprios** | O criador do prompt pode editar e excluir o que publicou, sem precisar ser admin |
+| ✏️ | **Editar e excluir os próprios** | O criador pode editar e excluir o que publicou sem precisar ser admin |
 | ❤️ | **Favoritos** | Salva e acessa prompts favoritos em qualquer dispositivo (persistido no Firestore) |
+| 👍 | **Likes** | Curte prompts; contador visível no card e na página de detalhe |
 | 📋 | **Copiar com um clique** | Copia o conteúdo para a área de transferência; contador de cópias atualizado em tempo real |
+| 🕓 | **Histórico** | Registro local dos últimos prompts copiados, com exportação em `.txt` |
 | 👁️ | **Contadores** | Visualizações e cópias exibidas no card e na página de detalhe |
-| 🌟 | **Destaques e novidades** | Seções colapsáveis de prompts em destaque e recém-adicionados na Home |
+| 🌟 | **Destaques** | Seções colapsáveis de prompts Mirante IA e em destaque na Home |
 | 📄 | **Paginação** | 20 prompts por página na Home e no painel admin |
 | 🎨 | **Dark mode** | Alternância entre modo claro e escuro, persistida localmente |
-| 📱 | **100% responsivo** | Do mobile ao widescreen |
+| 📱 | **100% responsivo** | Bottom nav flutuante no mobile, sidebar no desktop |
 
 ### Para administradores
 
@@ -49,7 +49,7 @@ O painel de administração permite gerenciar prompts, usuários, setores, categ
 |---|---|---|
 | 🛡️ | **Painel Admin** | Abas para Prompts, Usuários, Setores, Categorias e Analytics |
 | 🔧 | **Gestão de prompts** | Criar, editar, excluir e marcar como destaque qualquer prompt |
-| 👥 | **Gestão de usuários** | Ver colaboradores, alterar setor, promover papéis |
+| 👥 | **Gestão de usuários** | Ver colaboradores, alterar setores de acesso, promover papéis |
 | 🏷️ | **Setores e categorias** | Criar, editar e organizar a taxonomia de prompts |
 | 📊 | **Analytics** | Prompts mais copiados, mais vistos, distribuição por setor e modelo de IA |
 
@@ -98,16 +98,21 @@ bancodeprompts-mirante/
     │   ├── sectors.js          # getSectors, createSector, updateSector, deleteSector
     │   ├── categories.js       # getCategories, createCategory, ...
     │   ├── favorites.js        # getFavoritesByUser, toggleFavorite
+    │   ├── likes.js            # getLikesByUser, toggleLike
+    │   ├── history.js          # getHistory, addToHistory (localStorage)
     │   └── stats.js            # addPlatformTime (tempo de sessão)
     │
     ├── hooks/
-    │   └── useFavorites.js     # React Query + toggle com atualização otimista
+    │   ├── useFavorites.js     # React Query + toggle com atualização otimista
+    │   ├── useLikes.js         # React Query + toggle de likes
+    │   └── useHistory.js       # Histórico de cópias (localStorage)
     │
     ├── pages/
     │   ├── LoginPage.jsx       # Tela de login com domínio restrito
     │   ├── HomePage.jsx        # Grid principal + filtros + hero + FAB
     │   ├── PromptDetailPage.jsx# Visualização e ações do prompt individual
     │   ├── FavoritesPage.jsx   # Biblioteca de favoritos do usuário
+    │   ├── HistoryPage.jsx     # Histórico de prompts copiados + exportação .txt
     │   ├── ProfilePage.jsx     # Dados do usuário, tema, logout
     │   └── AdminPage.jsx       # Painel de administração (5 abas)
     │
@@ -116,7 +121,7 @@ bancodeprompts-mirante/
         │   ├── AppLayout.jsx   # Sidebar + Navbar + transições de página + MouseFollower
         │   ├── Sidebar.jsx     # Navegação lateral (desktop lg+)
         │   ├── Navbar.jsx      # Barra superior responsiva + user menu
-        │   └── MobileNav.jsx   # Bottom nav flutuante (mobile)
+        │   └── MobileNav.jsx   # Bottom nav flutuante com glass effect (mobile)
         │
         ├── prompts/
         │   ├── PromptCard.jsx  # Card com 3D tilt, glow, shimmer, contadores
@@ -150,6 +155,7 @@ bancodeprompts-mirante/
 |---|---|
 | `users/{uid}` | Perfil, papel (`typeUser`), setores (`sectorIds`) |
 | `users/{uid}/favorites/{id}` | Favoritos do usuário (subcollection) |
+| `users/{uid}/likes/{id}` | Likes do usuário (subcollection) |
 | `user_stats/{uid}` | Tempo total de sessão na plataforma |
 | `sectors/{id}` | Nome, ícone do setor |
 | `categories/{id}` | Nome, cor, setor pai (`sectorId`) |
@@ -166,11 +172,12 @@ bancodeprompts-mirante/
   observations:      string,       // Notas adicionais (opcional)
   ai_model:          string,       // "ChatGPT" | "Claude" | "Gemini" | ...
   difficulty:        string,       // "Iniciante" | "Intermediário" | "Avançado"
+  is_mirante_ia:     boolean,      // Exibe na seção "Mirante IA" da Home
+  is_featured:       boolean,
   sectorIds:         string[],     // Array de IDs de setor (suportado)
   sectorId:          string,       // ID de setor único (legado, ainda suportado)
   categoryIds:       string[],     // Array de IDs de categoria (suportado)
   categoryId:        string,       // ID de categoria único (legado)
-  is_featured:       boolean,
   createdAt:         Timestamp,
   updatedAt:         Timestamp,
   createdBy:         string,       // UID do criador (imutável)
@@ -179,6 +186,7 @@ bancodeprompts-mirante/
   updatedByName:     string,
   viewCount:         number,
   copyCount:         number,
+  likesCount:        number,
 }
 ```
 
@@ -197,7 +205,7 @@ bancodeprompts-mirante/
 
 | Papel | Atribuído por | Permissões |
 |---|---|---|
-| `user` | Sistema (primeiro login) | Ver prompts do setor, criar/editar/excluir os próprios, favoritar, copiar |
+| `user` | Sistema (primeiro login) | Ver prompts do setor, criar/editar/excluir os próprios, favoritar, curtir, copiar |
 | `admin` | `superadmin` | Tudo de `user` + gerenciar qualquer prompt, usuários, setores, categorias, analytics |
 | `superadmin` | Outro `superadmin` | Tudo de `admin` + promover/rebaixar papéis de qualquer usuário |
 
@@ -214,16 +222,21 @@ bancodeprompts-mirante/
 - O criador pode **editar e excluir os próprios prompts** diretamente no card ou na página de detalhe.
 - Admins podem editar e excluir **qualquer prompt** da biblioteca.
 
-### Favoritos
+### Favoritos e Likes
 
-- Ficam em `users/{uid}/favorites/` — **privados por usuário**.
-- Gerenciados de qualquer dispositivo (persistência no Firestore).
-- Toggle otimista via React Query — a UI atualiza antes da confirmação do servidor.
+- Favoritos ficam em `users/{uid}/favorites/` — **privados por usuário**.
+- Likes ficam em `users/{uid}/likes/` e incrementam `likesCount` no prompt.
+- Ambos gerenciados com toggle otimista via React Query — a UI atualiza antes da confirmação do servidor.
 
-### Contadores (`viewCount`, `copyCount`)
+### Histórico
+
+- Armazenado em `localStorage` — sem necessidade de autenticação para leitura.
+- Registra cada prompt copiado com título, data e hora.
+- Exportável como arquivo `.txt` diretamente da página de Histórico.
+
+### Contadores (`viewCount`, `copyCount`, `likesCount`)
 
 - Qualquer usuário autenticado pode incrementar esses campos.
-- A regra do Firestore permite atualizar **somente** esses dois campos — sem acesso ao conteúdo real do prompt.
 
 ### Setores e categorias
 
@@ -246,18 +259,18 @@ Firebase Console → Firestore → Regras → Cole o conteúdo → Publicar
 
 | Coleção | Leitura | Escrita |
 |---|---|---|
-| `users/{uid}` | Próprio usuário ou admin | Próprio (campos limitados), admin (sem `typeUser`), superadmin |
+| `users/{uid}` | Próprio usuário ou qualquer autenticado | Próprio usuário, admin |
 | `users/{uid}/favorites/*` | Próprio usuário | Próprio usuário |
+| `users/{uid}/likes/*` | Próprio usuário | Próprio usuário |
 | `user_stats/{uid}` | Próprio ou admin | Próprio usuário |
-| `sectors/*` | Qualquer `@mirante.com.br` | Admin |
-| `categories/*` | Qualquer `@mirante.com.br` | Admin |
-| `prompts/*` | Usuário com acesso ao setor | Admin + criador (próprio) |
+| `sectors/*` | Qualquer autenticado | Admin |
+| `categories/*` | Qualquer autenticado | Admin |
+| `prompts/*` | Qualquer autenticado | Admin + criador (próprio) |
 
 ### Pontos de segurança
 
 - `typeUser` nunca pode ser auto-atribuído — requer `superadmin`
 - `createdBy` é imutável — ninguém pode reatribuir a autoria de um prompt
-- Incremento de `viewCount`/`copyCount` só permite alterar **exatamente** esses campos
 - Restrição de domínio aplicada em duas camadas: `AuthContext` (UI) + Firestore Rules (banco)
 
 ---
@@ -328,6 +341,7 @@ O output fica em `dist/`. Compatível com Vercel, Netlify, Firebase Hosting e qu
 | `/` | `HomePage` | Autenticado |
 | `/prompt/:id` | `PromptDetailPage` | Autenticado |
 | `/favorites` | `FavoritesPage` | Autenticado |
+| `/history` | `HistoryPage` | Autenticado |
 | `/profile` | `ProfilePage` | Autenticado |
 | `/admin` | `AdminPage` | Admin / SuperAdmin |
 | `*` | — | Redireciona para `/` |
@@ -348,8 +362,7 @@ O output fica em `dist/`. Compatível com Vercel, Netlify, Firebase Hosting e qu
 | Cards | `whileInView` com stagger por índice ao fazer scroll |
 | Cards (hover) | 3D tilt + glow radial rastreando o cursor via DOM direto |
 | Cards (hover) | Shimmer no accent bar superior |
-| Hero | Orbs flutuantes com parallax respondendo ao mouse |
-| Hero | Texto animado palavra por palavra |
+| Hero | Logo flutuante com animação loop suave |
 | Cursor | `MouseFollower` — dois orbs com spring physics globais |
 | Páginas | `AnimatePresence` fade + slide entre rotas |
 | FAB | Ripple ring pulsante em loop |

@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Sparkles,
-
   Star,
   Plus,
   ChevronLeft,
@@ -25,8 +24,8 @@ import SearchBar, { applySortFn } from "../components/prompts/SearchBar";
 import PromptGrid from "../components/prompts/PromptGrid";
 import PromptEditorModal from "../components/admin/PromptEditorModal";
 import { toast } from "sonner";
-import logoClaro from "../assets/logo_claro.png";
-import logoEscuro from "../assets/logo_escuro.png";
+import logoClaro from "../assets/logo_intranet_claro.png";
+import logoEscuro from "../assets/logo_intranet_escuro.png";
 
 const PAGE_SIZE = 20;
 
@@ -66,7 +65,6 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [miranteOpen, setMiranteOpen] = useState(true);
   const [featuredOpen, setFeaturedOpen] = useState(true);
-
 
   const { data: prompts = [], isLoading: promptsLoading } = useQuery({
     queryKey: ["prompts"],
@@ -212,7 +210,7 @@ export default function HomePage() {
               draggable={false}
               className="absolute right-4 top-1/2 -translate-y-1/2 h-[110%] w-auto object-contain pointer-events-none select-none"
               style={{
-                opacity: dark ? 0.10 : 0.12,
+                opacity: dark ? 0.1 : 0.12,
                 mixBlendMode: dark ? "screen" : "multiply",
                 filter: "blur(0.5px)",
               }}
@@ -220,7 +218,6 @@ export default function HomePage() {
 
             <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
               <div className="flex flex-col lg:flex-row lg:items-center gap-10 lg:gap-20">
-
                 {/* ── LEFT: logo + badge + texto ── */}
                 <div className="flex-1 flex flex-col gap-5">
                   <motion.div
@@ -234,7 +231,11 @@ export default function HomePage() {
                       alt="TV Mirante"
                       draggable={false}
                       animate={{ y: [0, -6, 0] }}
-                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
                       className="h-16 sm:h-24 w-auto object-contain select-none"
                       style={{
                         filter: dark
@@ -256,7 +257,11 @@ export default function HomePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                      delay: 0.18,
+                      duration: 0.5,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
                     className="space-y-2"
                   >
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
@@ -277,7 +282,11 @@ export default function HomePage() {
                     className="flex flex-wrap gap-3"
                   >
                     <button
-                      onClick={() => promptsRef.current?.scrollIntoView({ behavior: "smooth" })}
+                      onClick={() =>
+                        promptsRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                        })
+                      }
                       className="cursor-pointer inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-glow hover:opacity-90 transition-opacity"
                     >
                       <Sparkles className="w-4 h-4" />
@@ -300,20 +309,38 @@ export default function HomePage() {
                   <motion.div
                     initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.28, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                      delay: 0.28,
+                      duration: 0.5,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
                     className="lg:shrink-0 flex flex-row lg:flex-col gap-6 lg:gap-0 lg:divide-y divide-border"
                   >
                     {[
-                      { icon: BookOpen,   value: prompts.length,    label: "Prompts"    },
-                      { icon: Layers,     value: sectors.length,    label: "Setores"    },
-                      { icon: FolderOpen, value: categories.length, label: "Categorias" },
+                      {
+                        icon: BookOpen,
+                        value: prompts.length,
+                        label: "Prompts",
+                      },
+                      { icon: Layers, value: sectors.length, label: "Setores" },
+                      {
+                        icon: FolderOpen,
+                        value: categories.length,
+                        label: "Categorias",
+                      },
                     ].map(({ icon: Icon, value, label }) => (
-                      <div key={label} className="flex items-center gap-4 lg:py-7 first:pt-0 last:pb-0">
+                      <div
+                        key={label}
+                        className="flex items-center gap-4 lg:py-7 first:pt-0 last:pb-0"
+                      >
                         <div className="w-0.5 h-10 rounded-full bg-primary/25 shrink-0 hidden lg:block" />
                         <div>
-                          <div className="text-3xl font-bold text-foreground tabular-nums leading-none">{value}</div>
+                          <div className="text-3xl font-bold text-foreground tabular-nums leading-none">
+                            {value}
+                          </div>
                           <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <Icon className="w-3 h-3" />{label}
+                            <Icon className="w-3 h-3" />
+                            {label}
                           </div>
                         </div>
                       </div>
@@ -324,7 +351,7 @@ export default function HomePage() {
             </div>
 
             {/* Bottom fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-linear-to-t from-background to-transparent pointer-events-none" />
           </motion.section>
         ) : (
           <motion.div
@@ -336,10 +363,14 @@ export default function HomePage() {
             className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-2"
           >
             <h2 className="text-lg font-bold text-foreground">
-              {searchTerm ? `Resultados para "${searchTerm}"` : "Prompts filtrados"}
+              {searchTerm
+                ? `Resultados para "${searchTerm}"`
+                : "Prompts filtrados"}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {sortedFiltered.length} prompt{sortedFiltered.length !== 1 ? "s" : ""} encontrado{sortedFiltered.length !== 1 ? "s" : ""}
+              {sortedFiltered.length} prompt
+              {sortedFiltered.length !== 1 ? "s" : ""} encontrado
+              {sortedFiltered.length !== 1 ? "s" : ""}
             </p>
           </motion.div>
         )}
@@ -430,7 +461,6 @@ export default function HomePage() {
               </CollapsibleSection>
             )}
 
-
             {/* Todos (paginado) */}
             <section className="space-y-5">
               <motion.div
@@ -487,7 +517,7 @@ export default function HomePage() {
               damping: 18,
             }}
             onClick={() => setShowCreateModal(true)}
-            className="cursor-pointer fixed bottom-8 right-6 lg:right-8 flex items-center gap-2 h-12 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-glow z-20 overflow-hidden"
+            className="cursor-pointer fixed bottom-24 lg:bottom-8 right-6 lg:right-8 flex items-center gap-2 h-12 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium shadow-glow z-20 overflow-hidden"
           >
             <motion.span
               className="absolute inset-0 rounded-full border-2 border-primary/60"

@@ -2,8 +2,8 @@ import { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { X, Save, Check, ChevronDown, Lock, Sparkles } from "lucide-react";
 import { ConfirmModal } from "../ui/confirm-modal";
-import logoClaro from "../../assets/logo_claro.png";
-import logoEscuro from "../../assets/logo_escuro.png";
+import logoClaro from "../../assets/logo_intranet_claro.png";
+import logoEscuro from "../../assets/logo_intranet_escuro.png";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { createPrompt, updatePrompt } from "../../firebaseClient/prompts";
@@ -11,7 +11,14 @@ import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
 import { NativeSelect } from "../ui/native-select";
 
-const AI_MODELS = ["ChatGPT", "Claude", "Gemini", "Perplexity", "DeepSeek", "Copilot"];
+const AI_MODELS = [
+  "ChatGPT",
+  "Claude",
+  "Gemini",
+  "Perplexity",
+  "DeepSeek",
+  "Copilot",
+];
 const DIFFICULTIES = ["Iniciante", "Intermediário", "Avançado"];
 
 function toArray(val) {
@@ -38,10 +45,15 @@ const EMPTY_FORM = {
 function CheckboxGroup({ label, options, selected, onChange, emptyText }) {
   const [open, setOpen] = useState(true);
 
-  const allSelected = options.length > 0 && options.every((o) => selected.includes(o.id));
+  const allSelected =
+    options.length > 0 && options.every((o) => selected.includes(o.id));
   const toggleAll = () => onChange(allSelected ? [] : options.map((o) => o.id));
   const toggle = (id) =>
-    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
+    onChange(
+      selected.includes(id)
+        ? selected.filter((s) => s !== id)
+        : [...selected, id],
+    );
 
   const selectedNames = options
     .filter((o) => selected.includes(o.id))
@@ -56,9 +68,13 @@ function CheckboxGroup({ label, options, selected, onChange, emptyText }) {
         className="cursor-pointer w-full flex items-center justify-between px-3 py-2 hover:bg-surface/60 transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[0.8125rem] font-medium text-foreground">{label}</span>
+          <span className="text-[0.8125rem] font-medium text-foreground">
+            {label}
+          </span>
           {selected.length > 0 && (
-            <span className="text-[11px] text-muted-foreground truncate max-w-52">{selectedNames}</span>
+            <span className="text-[11px] text-muted-foreground truncate max-w-52">
+              {selectedNames}
+            </span>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -95,7 +111,9 @@ function CheckboxGroup({ label, options, selected, onChange, emptyText }) {
                     >
                       <span
                         className={`flex items-center justify-center w-3 h-3 rounded border transition-all shrink-0 ${
-                          isChecked ? "bg-primary border-primary" : "border-border/60"
+                          isChecked
+                            ? "bg-primary border-primary"
+                            : "border-border/60"
                         }`}
                       >
                         {isChecked && <Check className="w-2 h-2 text-white" />}
@@ -125,7 +143,9 @@ function CheckboxGroup({ label, options, selected, onChange, emptyText }) {
 
 /* ── Setor bloqueado (usuário comum) ─────────────────────────── */
 function LockedSectors({ sectorIds, sectors }) {
-  const resolved = sectorIds.map((id) => sectors.find((s) => s.id === id)).filter(Boolean);
+  const resolved = sectorIds
+    .map((id) => sectors.find((s) => s.id === id))
+    .filter(Boolean);
 
   return (
     <div className="space-y-1.5">
@@ -161,7 +181,13 @@ function LockedSectors({ sectorIds, sectors }) {
 }
 
 /* ── Modal principal ─────────────────────────────────────────── */
-export default function PromptEditorModal({ prompt, categories, sectors, onSaved, onClose }) {
+export default function PromptEditorModal({
+  prompt,
+  categories,
+  sectors,
+  onSaved,
+  onClose,
+}) {
   const { userProfile, isAdmin, isSuperAdmin } = useAuth();
   const { dark } = useTheme();
   const isEditing = !!prompt;
@@ -187,11 +213,13 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
     ...EMPTY_FORM,
     ...(prompt || {}),
     sectorIds: initialSectorIds,
-    categoryIds: toArray(prompt?.categoryIds || prompt?.categoryId || prompt?.category_id),
+    categoryIds: toArray(
+      prompt?.categoryIds || prompt?.categoryId || prompt?.category_id,
+    ),
   });
 
   const [form, setForm] = useState({ ...initialForm.current });
-  const [saving, setSaving]               = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const isDirty = useMemo(() => {
@@ -219,24 +247,54 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
   const handleSectorsChange = (newSectorIds) => {
     const validCategoryIds = form.categoryIds.filter((cid) => {
       const cat = categories.find((c) => c.id === cid);
-      return !cat || newSectorIds.length === 0 || newSectorIds.includes(cat.sectorId);
+      return (
+        !cat || newSectorIds.length === 0 || newSectorIds.includes(cat.sectorId)
+      );
     });
-    setForm((f) => ({ ...f, sectorIds: newSectorIds, categoryIds: validCategoryIds }));
+    setForm((f) => ({
+      ...f,
+      sectorIds: newSectorIds,
+      categoryIds: validCategoryIds,
+    }));
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.warning("Título é obrigatório."); return; }
-    if (!form.short_description.trim()) { toast.warning("Descrição curta é obrigatória."); return; }
-    if (!form.content.trim()) { toast.warning("Conteúdo do prompt é obrigatório."); return; }
-    if (!form.ai_model) { toast.warning("Selecione a IA recomendada."); return; }
-    if (!canEditSector && userSectorIds.length === 0) {
-      toast.warning("Seu perfil não possui um setor definido. Contate o administrador.");
+    if (!form.title.trim()) {
+      toast.warning("Título é obrigatório.");
       return;
     }
-    if (form.sectorIds.length === 0) { toast.warning("Selecione ao menos um setor."); return; }
-    if (form.categoryIds.length === 0) { toast.warning("Selecione ao menos uma categoria."); return; }
+    if (!form.short_description.trim()) {
+      toast.warning("Descrição curta é obrigatória.");
+      return;
+    }
+    if (!form.content.trim()) {
+      toast.warning("Conteúdo do prompt é obrigatório.");
+      return;
+    }
+    if (!form.ai_model) {
+      toast.warning("Selecione a IA recomendada.");
+      return;
+    }
+    if (!canEditSector && userSectorIds.length === 0) {
+      toast.warning(
+        "Seu perfil não possui um setor definido. Contate o administrador.",
+      );
+      return;
+    }
+    if (form.sectorIds.length === 0) {
+      toast.warning("Selecione ao menos um setor.");
+      return;
+    }
+    if (form.categoryIds.length === 0) {
+      toast.warning("Selecione ao menos uma categoria.");
+      return;
+    }
 
-    const payload = { ...form, sectorIds: form.sectorIds, categoryIds: form.categoryIds };
+    const payload = {
+      ...form,
+      sectorIds: form.sectorIds,
+      categoryIds: form.categoryIds,
+    };
 
     setSaving(true);
     try {
@@ -317,13 +375,27 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="IA recomendada *">
-              <NativeSelect value={form.ai_model} onChange={(e) => set("ai_model", e.target.value)}>
-                {AI_MODELS.map((ai) => <option key={ai} value={ai}>{ai}</option>)}
+              <NativeSelect
+                value={form.ai_model}
+                onChange={(e) => set("ai_model", e.target.value)}
+              >
+                {AI_MODELS.map((ai) => (
+                  <option key={ai} value={ai}>
+                    {ai}
+                  </option>
+                ))}
               </NativeSelect>
             </Field>
             <Field label="Nível de dificuldade">
-              <NativeSelect value={form.difficulty} onChange={(e) => set("difficulty", e.target.value)}>
-                {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+              <NativeSelect
+                value={form.difficulty}
+                onChange={(e) => set("difficulty", e.target.value)}
+              >
+                {DIFFICULTIES.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </NativeSelect>
             </Field>
           </div>
@@ -395,15 +467,24 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
                 />
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground font-medium">Selo Mirante IA</span>
+                    <span className="text-sm text-foreground font-medium">
+                      Selo Mirante IA
+                    </span>
                     <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
-                      <img src={dark ? logoEscuro : logoClaro} alt="" className="h-3 w-auto object-contain" />
+                      <img
+                        src={dark ? logoEscuro : logoClaro}
+                        alt="TV Mirante"
+                        className="h-3 w-auto object-contain"
+                      />
                       <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 tracking-wide uppercase">Mirante IA</span>
+                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 tracking-wide uppercase">
+                        Mirante IA
+                      </span>
                     </div>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Marca este prompt como produzido pela equipe da TV Mirante. Exibe um selo especial no card e na página de detalhe.
+                    Marca este prompt como produzido pela equipe da TV Mirante.
+                    Exibe um selo especial no card e na página de detalhe.
                   </p>
                 </div>
               </label>
@@ -474,7 +555,9 @@ export default function PromptEditorModal({ prompt, categories, sectors, onSaved
 function Field({ label, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[0.8125rem] font-medium text-foreground">{label}</label>
+      <label className="text-[0.8125rem] font-medium text-foreground">
+        {label}
+      </label>
       {children}
     </div>
   );

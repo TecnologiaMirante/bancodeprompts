@@ -1,17 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, User, LogOut, Moon, Sun, Shield, ChevronDown, Menu } from "lucide-react";
-import logoMirante from "../../assets/logo_mirante.png";
+import {
+  Heart,
+  User,
+  LogOut,
+  Moon,
+  Sun,
+  Shield,
+  ChevronDown,
+  Menu,
+} from "lucide-react";
+import logoClaro from "../../assets/logo_intranet_claro.png";
+import logoEscuro from "../../assets/logo_intranet_escuro.png";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { ConfirmModal } from "../ui/confirm-modal";
 
 const PAGE_TITLES = {
-  "/":          "Início",
+  "/": "Início",
   "/favorites": "Favoritos",
-  "/profile":   "Meu Perfil",
-  "/admin":     "Painel Admin",
+  "/profile": "Meu Perfil",
+  "/admin": "Painel Admin",
 };
 
 function usePageTitle() {
@@ -56,16 +66,19 @@ export default function Navbar() {
   };
 
   const initials = userProfile?.display_name
-    ? userProfile.display_name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()
+    ? userProfile.display_name
+        .split(" ")
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
     : user?.email?.[0]?.toUpperCase() || "U";
 
   return (
     <>
       <header
-        className={`h-[56px] sticky top-0 z-30 flex items-center shrink-0 transition-all duration-300 ${
-          scrolled
-            ? "navbar-glass shadow-sm"
-            : "bg-background/0"
+        className={`h-14 sticky top-0 z-30 flex items-center shrink-0 transition-all duration-300 ${
+          scrolled ? "navbar-glass shadow-sm" : "bg-background/0"
         }`}
       >
         {scrolled && (
@@ -84,10 +97,9 @@ export default function Navbar() {
             {/* Logo — mobile only (sidebar has it on desktop) */}
             <Link to="/" className="lg:hidden flex items-center gap-3 group">
               <img
-                src={logoMirante}
+                src={dark ? logoEscuro : logoClaro}
                 alt="TV Mirante"
                 className="h-6 w-auto object-contain"
-                style={{ filter: dark ? "brightness(0) invert(1)" : "none" }}
               />
               <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-muted-foreground/70">
                 Banco de Prompts
@@ -146,7 +158,11 @@ export default function Navbar() {
                   transition={{ duration: 0.18 }}
                   className="flex items-center justify-center"
                 >
-                  {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {dark ? (
+                    <Sun className="w-4 h-4" />
+                  ) : (
+                    <Moon className="w-4 h-4" />
+                  )}
                 </motion.span>
               </AnimatePresence>
             </button>
@@ -181,7 +197,10 @@ export default function Navbar() {
               <AnimatePresence>
                 {userMenuOpen && (
                   <>
-                    <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95, y: -8 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -218,12 +237,34 @@ export default function Navbar() {
                       </div>
 
                       <div className="p-1.5">
-                        <DropdownItem icon={User} label="Meu perfil" onClick={() => { navigate("/profile"); setUserMenuOpen(false); }} />
+                        <DropdownItem
+                          icon={User}
+                          label="Meu perfil"
+                          onClick={() => {
+                            navigate("/profile");
+                            setUserMenuOpen(false);
+                          }}
+                        />
                         {isAdminUser && (
-                          <DropdownItem icon={Shield} label="Painel Admin" onClick={() => { navigate("/admin"); setUserMenuOpen(false); }} />
+                          <DropdownItem
+                            icon={Shield}
+                            label="Painel Admin"
+                            onClick={() => {
+                              navigate("/admin");
+                              setUserMenuOpen(false);
+                            }}
+                          />
                         )}
                         <div className="h-px bg-border my-1 mx-2" />
-                        <DropdownItem icon={LogOut} label="Sair da conta" onClick={() => { setUserMenuOpen(false); setShowLogoutConfirm(true); }} danger />
+                        <DropdownItem
+                          icon={LogOut}
+                          label="Sair da conta"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            setShowLogoutConfirm(true);
+                          }}
+                          danger
+                        />
                       </div>
                     </motion.div>
                   </>
@@ -254,7 +295,9 @@ function DropdownItem({ icon: Icon, label, onClick, danger = false }) {
     <button
       onClick={onClick}
       className={`cursor-pointer w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 ${
-        danger ? "text-destructive hover:bg-destructive/8" : "text-foreground hover:bg-surface"
+        danger
+          ? "text-destructive hover:bg-destructive/8"
+          : "text-foreground hover:bg-surface"
       }`}
     >
       <Icon className="w-4 h-4 shrink-0 opacity-70" />
