@@ -1,9 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { useEffect } from "react";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+
+import { getPrompts } from "./firebaseClient/prompts";
+import { getCategories } from "./firebaseClient/categories";
+import { getSectors } from "./firebaseClient/sectors";
 
 import AppLayout from "./components/layout/AppLayout";
 import ProfileSetupModal from "./components/ProfileSetupModal";
@@ -25,6 +30,20 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function DataPrefetcher() {
+  const { user, isGuest } = useAuth();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!user && !isGuest) return;
+    qc.prefetchQuery({ queryKey: ["prompts"], queryFn: getPrompts });
+    qc.prefetchQuery({ queryKey: ["categories"], queryFn: getCategories });
+    qc.prefetchQuery({ queryKey: ["sectors"], queryFn: getSectors });
+  }, [!!user, isGuest]);
+
+  return null;
+}
 
 function LoadingScreen() {
   return (
@@ -149,6 +168,7 @@ export function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
+            <DataPrefetcher />
             <SessionTracker />
             <ProfileSetupModal />
             <AppRoutes />
