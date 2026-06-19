@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Zap, Shield, Users, AlertCircle, Eye } from "lucide-react";
 import logoEscuro from "../assets/logo_intranet_escuro.png";
@@ -37,17 +37,30 @@ const aiLogos = [
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const [domainBlocked, setDomainBlocked] = useState(false);
   const { enterGuestMode } = useAuth();
   const navigate = useNavigate();
 
+  // Force dark mode on login page regardless of user preference
+  useEffect(() => {
+    const root = document.documentElement;
+    const wasDark = root.classList.contains("dark");
+    root.classList.add("dark");
+    return () => {
+      if (!wasDark) root.classList.remove("dark");
+    };
+  }, []);
+
   const handleGuestAccess = async () => {
+    setGuestLoading(true);
     try {
       await enterGuestMode();
       navigate("/");
       toast.info("Você está navegando como convidado. Faça login para salvar favoritos, histórico e muito mais.");
     } catch {
       toast.error("Não foi possível entrar como convidado. Tente novamente.");
+      setGuestLoading(false);
     }
   };
 
@@ -276,10 +289,15 @@ export default function LoginPage() {
 
           <button
             onClick={handleGuestAccess}
-            className="w-full flex items-center justify-center gap-2 h-11 px-5 rounded-xl border border-dashed border-border bg-transparent hover:bg-surface transition-all duration-200 text-sm font-medium text-muted-foreground hover:text-foreground group"
+            disabled={guestLoading}
+            className="w-full flex items-center justify-center gap-2 h-11 px-5 rounded-xl border border-dashed border-border bg-transparent hover:bg-surface transition-all duration-200 text-sm font-medium text-muted-foreground hover:text-foreground group disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <Eye className="w-4 h-4 shrink-0" />
-            <span>Entrar como convidado</span>
+            {guestLoading ? (
+              <div className="w-4 h-4 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+            ) : (
+              <Eye className="w-4 h-4 shrink-0" />
+            )}
+            <span>{guestLoading ? "Entrando..." : "Entrar como convidado"}</span>
           </button>
 
           <p className="text-xs text-center text-muted-foreground leading-relaxed">
