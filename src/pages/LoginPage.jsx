@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Zap, Shield, Users, AlertCircle } from "lucide-react";
+import { ArrowRight, Zap, Shield, Users, AlertCircle, Eye } from "lucide-react";
 import logoEscuro from "../assets/logo_intranet_escuro.png";
 import { signInWithGoogle } from "../firebaseClient/auth";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const features = [
@@ -36,6 +38,18 @@ const aiLogos = [
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [domainBlocked, setDomainBlocked] = useState(false);
+  const { enterGuestMode } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGuestAccess = async () => {
+    try {
+      await enterGuestMode();
+      navigate("/");
+      toast.info("Você está navegando como convidado. Faça login para salvar favoritos, histórico e muito mais.");
+    } catch {
+      toast.error("Não foi possível entrar como convidado. Tente novamente.");
+    }
+  };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -252,6 +266,20 @@ export default function LoginPage() {
             {!loading && (
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform ml-auto" />
             )}
+          </button>
+
+          <div className="relative flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground/60 shrink-0">ou</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <button
+            onClick={handleGuestAccess}
+            className="w-full flex items-center justify-center gap-2 h-11 px-5 rounded-xl border border-dashed border-border bg-transparent hover:bg-surface transition-all duration-200 text-sm font-medium text-muted-foreground hover:text-foreground group"
+          >
+            <Eye className="w-4 h-4 shrink-0" />
+            <span>Entrar como convidado</span>
           </button>
 
           <p className="text-xs text-center text-muted-foreground leading-relaxed">

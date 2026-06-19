@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebaseClient/config";
 import { getUserProfile, createUser } from "../firebaseClient/users";
-import { logout as firebaseLogout } from "../firebaseClient/auth";
+import { logout as firebaseLogout, loginAnonymously } from "../firebaseClient/auth";
 import { toast } from "sonner";
 
 const ALLOWED_DOMAIN = "mirante.com.br";
@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [domainError, setDomainError] = useState(false);
   const [profileError, setProfileError] = useState(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   const loadProfile = useCallback(async (firebaseUser) => {
     setProfileError(null);
@@ -57,6 +58,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // Anonymous user = guest mode
+        if (firebaseUser.isAnonymous) {
+          setIsGuest(true);
+          setUser(null);
+          setUserProfile(null);
+          setDomainError(false);
+          setProfileError(null);
+          setLoading(false);
+          return;
+        }
+
         if (!firebaseUser.email?.endsWith(`@${ALLOWED_DOMAIN}`)) {
           await signOut(auth);
           setUser(null);
@@ -67,6 +79,7 @@ export function AuthProvider({ children }) {
         }
 
         setDomainError(false);
+        setIsGuest(false);
 
         const baseUser = {
           uid: firebaseUser.uid,
@@ -82,6 +95,7 @@ export function AuthProvider({ children }) {
         setUser(null);
         setUserProfile(null);
         setProfileError(null);
+        setIsGuest(false);
       }
       setLoading(false);
     });
@@ -89,12 +103,18 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, [loadProfile]);
 
+  const enterGuestMode = async () => {
+    await loginAnonymously();
+    // isGuest will be set by onAuthStateChanged when it detects the anonymous user
+  };
+  const exitGuestMode = async () => {
+    await firebaseLogout();
+    // onAuthStateChanged will set isGuest=false
+  };
+
   const logout = async () => {
     await firebaseLogout();
-    setUser(null);
-    setUserProfile(null);
-    setDomainError(false);
-    setProfileError(null);
+    // onAuthStateChanged handles clearing all state
   };
 
   const refreshProfile = async () => {
@@ -137,6 +157,9 @@ export function AuthProvider({ children }) {
         logout,
         loading,
         refreshProfile,
+        isGuest,
+        enterGuestMode,
+        exitGuestMode,
       }}
     >
       {children}

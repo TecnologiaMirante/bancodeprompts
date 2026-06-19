@@ -10,6 +10,7 @@ import {
   Shield,
   ChevronDown,
   Menu,
+  LogIn,
 } from "lucide-react";
 import logoClaro from "../../assets/logo_intranet_claro.png";
 import logoEscuro from "../../assets/logo_intranet_escuro.png";
@@ -32,7 +33,7 @@ function usePageTitle() {
 }
 
 export default function Navbar() {
-  const { user, userProfile, isAdmin: isAdminUser, logout } = useAuth();
+  const { user, userProfile, isAdmin: isAdminUser, logout, isGuest, exitGuestMode } = useAuth();
   const { dark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -126,7 +127,7 @@ export default function Navbar() {
           {/* Right actions */}
           <div className="flex items-center gap-1">
             {/* Favorites — mobile only (sidebar has nav on desktop) */}
-            {showFavorites && (
+            {showFavorites && !isGuest && (
               <Link
                 to="/favorites"
                 className={`lg:hidden cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 ${
@@ -167,8 +168,19 @@ export default function Navbar() {
               </AnimatePresence>
             </button>
 
+            {/* Guest: login button */}
+            {isGuest && (
+              <button
+                onClick={async () => { await exitGuestMode(); navigate("/login"); }}
+                className="cursor-pointer flex items-center gap-2 h-8 px-3 rounded-full border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-all duration-200 ml-1 text-xs font-medium"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Fazer login</span>
+              </button>
+            )}
+
             {/* User menu — visible on all breakpoints */}
-            <div className="relative">
+            {!isGuest && <div className="relative">
               <button
                 onClick={() => setUserMenuOpen((o) => !o)}
                 className="cursor-pointer flex items-center gap-2 h-8 px-2.5 rounded-full border border-transparent hover:border-border hover:bg-surface transition-all duration-200 ml-1"
@@ -270,7 +282,7 @@ export default function Navbar() {
                   </>
                 )}
               </AnimatePresence>
-            </div>
+            </div>}
           </div>
         </div>
       </header>

@@ -40,9 +40,17 @@ function LoadingScreen() {
 }
 
 function PrivateRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, isGuest, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? children : <Navigate to="/login" replace />;
+  return user || isGuest ? children : <Navigate to="/login" replace />;
+}
+
+function GuestBlockedRoute({ children }) {
+  const { user, isGuest, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user && !isGuest) return <Navigate to="/login" replace />;
+  if (isGuest) return <Navigate to="/" replace />;
+  return children;
 }
 
 function AdminRoute({ children }) {
@@ -54,9 +62,9 @@ function AdminRoute({ children }) {
 }
 
 function PublicRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, isGuest, loading } = useAuth();
   if (loading) return null;
-  return user ? <Navigate to="/" replace /> : children;
+  return user || isGuest ? <Navigate to="/" replace /> : children;
 }
 
 function AppRoutes() {
@@ -93,31 +101,31 @@ function AppRoutes() {
       <Route
         path="/favorites"
         element={
-          <PrivateRoute>
+          <GuestBlockedRoute>
             <AppLayout>
               <FavoritesPage />
             </AppLayout>
-          </PrivateRoute>
+          </GuestBlockedRoute>
         }
       />
       <Route
         path="/history"
         element={
-          <PrivateRoute>
+          <GuestBlockedRoute>
             <AppLayout>
               <HistoryPage />
             </AppLayout>
-          </PrivateRoute>
+          </GuestBlockedRoute>
         }
       />
       <Route
         path="/profile"
         element={
-          <PrivateRoute>
+          <GuestBlockedRoute>
             <AppLayout>
               <ProfilePage />
             </AppLayout>
-          </PrivateRoute>
+          </GuestBlockedRoute>
         }
       />
       <Route
