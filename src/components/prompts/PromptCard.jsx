@@ -21,6 +21,7 @@ import { useHistory } from "../../hooks/useHistory";
 import { incrementPromptCopy } from "../../firebaseClient/prompts";
 import { toast } from "sonner";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 import logoClaro from "../../assets/logo_intranet_claro.png";
 import logoEscuro from "../../assets/logo_intranet_escuro.png";
 
@@ -36,6 +37,14 @@ export default function PromptCard({
   const { isLiked, toggle: toggleLike } = useLikes();
   const { record: recordHistory } = useHistory();
   const { dark } = useTheme();
+  const { isGuest } = useAuth();
+
+  const guestAlert = (action) => {
+    toast.error(`Faça login para ${action}.`, {
+      action: { label: "Entrar", onClick: () => (window.location.href = "/login") },
+      duration: 4000,
+    });
+  };
 
   const favorited = isFavorite(prompt.id);
   const liked = isLiked(prompt.id);
@@ -95,6 +104,7 @@ export default function PromptCard({
   const handleCopy = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isGuest) { guestAlert("copiar prompts"); return; }
     if (!prompt.content) {
       toast.error("Conteúdo não disponível.");
       return;
@@ -110,11 +120,13 @@ export default function PromptCard({
   const handleFavorite = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isGuest) { guestAlert("favoritar prompts"); return; }
     toggleFav(prompt.id);
   };
   const handleLike = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isGuest) { guestAlert("curtir prompts"); return; }
     toggleLike(prompt.id);
   };
   const handleEdit = (e) => {
@@ -131,6 +143,7 @@ export default function PromptCard({
   const handleExport = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isGuest) { guestAlert("exportar prompts"); return; }
     if (!prompt.content) {
       toast.error("Conteúdo não disponível.");
       return;

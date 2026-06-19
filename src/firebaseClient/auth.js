@@ -1,4 +1,4 @@
-import { signInWithPopup, signOut } from "firebase/auth";
+import { signInWithPopup, signOut, signInAnonymously } from "firebase/auth";
 import { auth, googleProvider } from "./config";
 
 const ALLOWED_DOMAIN = "mirante.com.br";
@@ -14,6 +14,10 @@ export async function signInWithGoogle() {
   }
 
   return result;
+}
+
+export async function loginAnonymously() {
+  return signInAnonymously(auth);
 }
 
 export async function logout() {

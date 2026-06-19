@@ -42,7 +42,14 @@ export default function PromptDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isFavorite, toggle } = useFavorites();
-  const { isAdmin, isSuperAdmin, userProfile } = useAuth();
+  const { isAdmin, isSuperAdmin, userProfile, isGuest } = useAuth();
+
+  const guestAlert = (action) => {
+    toast.error(`Faça login para ${action}.`, {
+      action: { label: "Entrar", onClick: () => navigate("/login") },
+      duration: 4000,
+    });
+  };
   const { dark } = useTheme();
   const [copied, setCopied] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -78,6 +85,7 @@ export default function PromptDetailPage() {
   const canDelete = isAdmin || isSuperAdmin || isOwner;
 
   const handleCopy = async () => {
+    if (isGuest) { guestAlert("copiar prompts"); return; }
     if (!prompt?.content) {
       toast.error("Conteúdo não disponível.");
       return;
@@ -336,7 +344,7 @@ export default function PromptDetailPage() {
 
           {/* Favorite */}
           <button
-            onClick={() => toggle(id)}
+            onClick={() => { if (isGuest) { guestAlert("favoritar prompts"); return; } toggle(id); }}
             className={`cursor-pointer flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-medium border transition-all ${
               favorited
                 ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400"
