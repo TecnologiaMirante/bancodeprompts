@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Zap, Shield, Users, AlertCircle } from "lucide-react";
-import logoMirante from "../assets/logo_mirante.png";
+import logoEscuro from "../assets/logo_intranet_escuro.png";
 import { signInWithGoogle } from "../firebaseClient/auth";
 import { toast } from "sonner";
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
           {/* Logo Mirante */}
           <div className="flex items-center gap-3">
             <img
-              src={logoMirante}
+              src={logoEscuro}
               alt="TV Mirante"
               className="h-8 w-auto object-contain"
               style={{ filter: "brightness(0) invert(1)" }}
@@ -180,7 +180,7 @@ export default function LoginPage() {
           {/* Logo (mobile + desktop right panel) */}
           <div className="flex items-center gap-3">
             <img
-              src={logoMirante}
+              src={logoEscuro}
               alt="TV Mirante"
               className="h-8 w-auto object-contain"
             />

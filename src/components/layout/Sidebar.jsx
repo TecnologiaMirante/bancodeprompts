@@ -2,31 +2,50 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Home, Heart, User, Shield, LogOut, Moon, Sun, Zap, ChevronLeft, Clock,
+  Home,
+  Heart,
+  User,
+  Shield,
+  LogOut,
+  Moon,
+  Sun,
+  Zap,
+  ChevronLeft,
+  Clock,
 } from "lucide-react";
-import logoClaro  from "../../assets/logo_claro.png";
-import logoEscuro from "../../assets/logo_escuro.png";
+import logoClaro from "../../assets/logo_intranet_claro.png";
+import logoEscuro from "../../assets/logo_intranet_escuro.png";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { ConfirmModal } from "../ui/confirm-modal";
 
 const NAV_ITEMS = [
-  { to: "/",          icon: Home,  label: "Início",     exact: true  },
-  { to: "/favorites", icon: Heart, label: "Favoritos",  exact: false },
-  { to: "/history",   icon: Clock, label: "Histórico",  exact: false },
-  { to: "/profile",   icon: User,  label: "Meu perfil", exact: false },
+  { to: "/", icon: Home, label: "Início", exact: true },
+  { to: "/favorites", icon: Heart, label: "Favoritos", exact: false },
+  { to: "/history", icon: Clock, label: "Histórico", exact: false },
+  { to: "/profile", icon: User, label: "Meu perfil", exact: false },
 ];
 
 /* Timing helpers — text fades out before container narrows,
    text fades in after container expands.                      */
 const labelTransition = (collapsed) => ({
-  opacity: { duration: 0.12, delay: collapsed ? 0    : 0.16 },
-  width:   { type: "spring", stiffness: 300, damping: 30, delay: collapsed ? 0.08 : 0 },
+  opacity: { duration: 0.12, delay: collapsed ? 0 : 0.16 },
+  width: {
+    type: "spring",
+    stiffness: 300,
+    damping: 30,
+    delay: collapsed ? 0.08 : 0,
+  },
 });
 
 const blockTransition = (collapsed) => ({
-  opacity: { duration: 0.14, delay: collapsed ? 0    : 0.16 },
-  height:  { type: "spring", stiffness: 300, damping: 30, delay: collapsed ? 0.08 : 0 },
+  opacity: { duration: 0.14, delay: collapsed ? 0 : 0.16 },
+  height: {
+    type: "spring",
+    stiffness: 300,
+    damping: 30,
+    delay: collapsed ? 0.08 : 0,
+  },
 });
 
 /* ── NavItem ─────────────────────────────────────────────────── */
@@ -99,16 +118,26 @@ export default function Sidebar({ collapsed, onToggle }) {
   const navigate = useNavigate();
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [loggingOut, setLoggingOut]               = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    try { await logout(); navigate("/login"); }
-    finally { setLoggingOut(false); setShowLogoutConfirm(false); }
+    try {
+      await logout();
+      navigate("/login");
+    } finally {
+      setLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
   };
 
   const initials = userProfile?.display_name
-    ? userProfile.display_name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()
+    ? userProfile.display_name
+        .split(" ")
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
     : user?.email?.[0]?.toUpperCase() || "U";
 
   return (
@@ -135,7 +164,10 @@ export default function Sidebar({ collapsed, onToggle }) {
 
         {/* ── Logo ── */}
         <div className="flex items-center h-[60px] shrink-0 border-b border-border overflow-hidden px-4">
-          <Link to="/" className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">
+          <Link
+            to="/"
+            className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
+          >
             <motion.img
               src={dark ? logoEscuro : logoClaro}
               alt="TV Mirante"
@@ -144,7 +176,10 @@ export default function Sidebar({ collapsed, onToggle }) {
               className="w-auto object-contain shrink-0"
             />
             <motion.span
-              animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
+              animate={{
+                opacity: collapsed ? 0 : 1,
+                width: collapsed ? 0 : "auto",
+              }}
               transition={labelTransition(collapsed)}
               className="text-xs font-bold tracking-[0.12em] uppercase text-foreground/70 whitespace-nowrap overflow-hidden"
               style={{ display: "block" }}
@@ -155,7 +190,9 @@ export default function Sidebar({ collapsed, onToggle }) {
         </div>
 
         {/* ── Navigation ── */}
-        <nav className={`flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-1 transition-all duration-200 ${collapsed ? "px-2" : "px-3"}`}>
+        <nav
+          className={`flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-1 transition-all duration-200 ${collapsed ? "px-2" : "px-3"}`}
+        >
           {NAV_ITEMS.map((item) => (
             <NavItem key={item.to} {...item} collapsed={collapsed} />
           ))}
@@ -164,26 +201,40 @@ export default function Sidebar({ collapsed, onToggle }) {
             <>
               <div className="my-3 h-px bg-border mx-1" />
               <motion.p
-                animate={{ opacity: collapsed ? 0 : 1, height: collapsed ? 0 : "auto" }}
+                animate={{
+                  opacity: collapsed ? 0 : 1,
+                  height: collapsed ? 0 : "auto",
+                }}
                 transition={blockTransition(collapsed)}
                 className="px-3 pb-1.5 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.1em] overflow-hidden"
               >
                 Administração
               </motion.p>
-              <NavItem to="/admin" icon={Shield} label="Painel Admin" exact={false} collapsed={collapsed} />
+              <NavItem
+                to="/admin"
+                icon={Shield}
+                label="Painel Admin"
+                exact={false}
+                collapsed={collapsed}
+              />
             </>
           )}
 
           {/* Feature badge */}
           <motion.div
-            animate={{ opacity: collapsed ? 0 : 1, height: collapsed ? 0 : "auto" }}
+            animate={{
+              opacity: collapsed ? 0 : 1,
+              height: collapsed ? 0 : "auto",
+            }}
             transition={blockTransition(collapsed)}
             className="overflow-hidden"
           >
             <div className="mt-6 mx-1 p-3 rounded-xl border border-primary/15 bg-primary/5">
               <div className="flex items-center gap-2 mb-1.5">
                 <Zap className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span className="text-xs font-semibold text-primary">Banco de Prompts</span>
+                <span className="text-xs font-semibold text-primary">
+                  Banco de Prompts
+                </span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Potencialize sua equipe com prompts de IA organizados por setor.
@@ -193,27 +244,37 @@ export default function Sidebar({ collapsed, onToggle }) {
         </nav>
 
         {/* ── Bottom ── */}
-        <div className={`shrink-0 border-t border-border py-3 space-y-1 transition-all duration-200 ${collapsed ? "px-2" : "px-3"}`}>
-
+        <div
+          className={`shrink-0 border-t border-border py-3 space-y-1 transition-all duration-200 ${collapsed ? "px-2" : "px-3"}`}
+        >
           {/* Theme */}
           <button
             onClick={toggleTheme}
-            title={collapsed ? (dark ? "Modo claro" : "Modo escuro") : undefined}
+            title={
+              collapsed ? (dark ? "Modo claro" : "Modo escuro") : undefined
+            }
             className={`cursor-pointer w-full flex items-center gap-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors duration-150 overflow-hidden
               ${collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"}`}
           >
             <AnimatePresence mode="wait" initial={false}>
-              <motion.span key={dark ? "sun" : "moon"}
+              <motion.span
+                key={dark ? "sun" : "moon"}
                 initial={{ opacity: 0, rotate: -20, scale: 0.8 }}
-                animate={{ opacity: 1, rotate: 0,   scale: 1   }}
+                animate={{ opacity: 1, rotate: 0, scale: 1 }}
                 exit={{ opacity: 0, rotate: 20, scale: 0.8 }}
                 transition={{ duration: 0.18 }}
                 className="shrink-0 flex items-center justify-center"
               >
-                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {dark ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
               </motion.span>
             </AnimatePresence>
-            <BtnLabel collapsed={collapsed}>{dark ? "Modo claro" : "Modo escuro"}</BtnLabel>
+            <BtnLabel collapsed={collapsed}>
+              {dark ? "Modo claro" : "Modo escuro"}
+            </BtnLabel>
           </button>
 
           {/* Logout */}
@@ -228,7 +289,8 @@ export default function Sidebar({ collapsed, onToggle }) {
           </button>
 
           {/* User card */}
-          <div className={`flex items-center gap-3 rounded-xl bg-surface mt-1 overflow-hidden
+          <div
+            className={`flex items-center gap-3 rounded-xl bg-surface mt-1 overflow-hidden
             ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2.5"}`}
           >
             {userProfile?.photo_url || user?.picture ? (
@@ -243,7 +305,10 @@ export default function Sidebar({ collapsed, onToggle }) {
               </div>
             )}
             <motion.div
-              animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
+              animate={{
+                opacity: collapsed ? 0 : 1,
+                width: collapsed ? 0 : "auto",
+              }}
               transition={labelTransition(collapsed)}
               className="min-w-0 overflow-hidden"
               style={{ display: "block" }}
